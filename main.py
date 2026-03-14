@@ -1,5 +1,6 @@
 from multiprocessing import Queue
 from multiprocessing import Process
+import input
 import json
 from typing import Dict
 
@@ -12,6 +13,8 @@ def ReadConfig() -> dict:
     except FileNotFoundError:
         print("Couldn't find config.json")
 
+if __name__ == '__main__':
+    config = ReadConfig()
+    raw_values = Queue()
+    input.run(config,raw_values)
 
-config = ReadConfig()
-print(config)
