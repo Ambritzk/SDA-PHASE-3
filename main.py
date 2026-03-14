@@ -24,7 +24,7 @@ if __name__ == '__main__':
 
 
     NumberOfWorkers = config['pipeline_dynamics'].get('core_parallelism')
-    CoreWorkers = [Process(target=core.run, args = (config, raw_values, processed_Queue)) for i in range(NumberOfWorkers)]
+    CoreWorkers = [Process(target=core.run, args = (config, raw_values, processed_Queue)) for _ in range(NumberOfWorkers)]
 
 
     InputProcess.start()

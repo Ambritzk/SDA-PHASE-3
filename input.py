@@ -22,30 +22,51 @@ def MapToInternal(config: Dict, original_column_name: str,original_value: Any, c
 
     #Here we return the internal column name and the typecasted value
     return column.get('internal_mapping'), casted_value
-    
-    #else column not found. Handle exception here?
+
+    #Might have to add exception handling in this function.
+
+
+
+
+
+
+
+
+
+
+def SignalEndOfInput(config: Dict, InputQueue: Queue) -> None:
+    for _ in range(config['pipeline_dynamics'].get('core_parallelism')):
+        InputQueue.put(None)
+
 def run(config: Dict, InputQueue: Queue) -> None:
     try:
         with open(config.get('dataset_path'), 'r') as DataFile:
             csv_reader = csv.DictReader(DataFile)
-            columns: List[Dict] = config["schema_mapping"].get('columns')
+            columnsFromConfig: List[Dict] = config["schema_mapping"].get('columns')
         
-            #MapToInternal returns a set(Renamed column, value casted to match the data type in config)
+            #MapToInternal returns a set(Renamed column, value with type that matches )
 
-            renaming = lambda x: {MapToInternal(config,k,v,columns)[0]:MapToInternal(config,k,v,columns)[1] for k,v in x.items()}
-            ListOfDicts = list(map(renaming, csv_reader))
+            rename = lambda x: {MapToInternal(config,k,v,columnsFromConfig)[0]:MapToInternal(config,k,v,columnsFromConfig)[1] for k,v in x.items()}
+            #ListOfDicts = list(map(rename, csv_reader))
+
+
+
+            sleep_time = config['pipeline_dynamics'].get('input_delay_seconds')
+            for row in csv_reader:
+                packet = rename(row)
+                InputQueue.put(packet)
+                time.sleep(sleep_time)
+            
+            #After we're done reading, we send None packets so that the core workers can get the signal to stop
+
+            SignalEndOfInput(config, InputQueue)
+
+
+
+
+
+
     except FileNotFoundError:
         print('File not found!')
-    
-    sleep_duration = config['pipeline_dynamics'].get('input_delay_seconds')
-    for row in ListOfDicts:
-        InputQueue.put(row) 
-        time.sleep(sleep_duration)
-    
-    
-    #After reading all the data, we pass a None value
-    #to each core worker, to signal them to stop
-    for _ in range(config['pipeline_dynamics'].get('core_parallelism')):
-        InputQueue.put(None)
-
-
+    except csv.Error:
+        print("Something went wrong while reading data")
