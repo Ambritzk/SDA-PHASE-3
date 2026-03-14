@@ -1,6 +1,7 @@
 from multiprocessing import Queue
 from multiprocessing import Process
 import input
+import core
 import json
 from typing import Dict
 
@@ -15,6 +16,28 @@ def ReadConfig() -> dict:
 
 if __name__ == '__main__':
     config = ReadConfig()
-    raw_values = Queue()
-    input.run(config,raw_values)
+    quesize = config['pipeline_dynamics'].get('stream_queue_max_size')
+    raw_values = Queue(maxsize=quesize)
+    processed_Queue = Queue(maxsize=quesize)
+    
+    InputProcess = Process(target = input.run, args = (config, raw_values))
+
+
+    NumberOfWorkers = config['pipeline_dynamics'].get('core_parallelism')
+    CoreWorkers = [Process(target=core.run, args = (config, raw_values, processed_Queue)) for i in range(NumberOfWorkers)]
+
+
+    InputProcess.start()
+    for worker in CoreWorkers:
+        worker.start()
+    
+
+    InputProcess.join()
+    for worker in CoreWorkers:
+        worker.join()
+
+
+
+
+
 
