@@ -1,6 +1,5 @@
 from multiprocessing import Queue
 from typing import Dict, List, Any, Tuple
-import pandas as pd
 import time
 import csv
 
@@ -28,12 +27,6 @@ def MapToInternal(config: Dict, original_column_name: str,original_value: Any, c
 
 
 
-
-
-
-
-
-
 def SignalEndOfInput(config: Dict, InputQueue: Queue) -> None:
     for _ in range(config['pipeline_dynamics'].get('core_parallelism')):
         InputQueue.put(None)
@@ -45,20 +38,16 @@ def run(config: Dict, InputQueue: Queue) -> None:
             columnsFromConfig: List[Dict] = config["schema_mapping"].get('columns')
         
             #MapToInternal returns a set(Renamed column, value with type that matches )
-
             rename = lambda x: {MapToInternal(config,k,v,columnsFromConfig)[0]:MapToInternal(config,k,v,columnsFromConfig)[1] for k,v in x.items()}
-            #ListOfDicts = list(map(rename, csv_reader))
-
 
 
             sleep_time = config['pipeline_dynamics'].get('input_delay_seconds')
             for row in csv_reader:
-                packet = rename(row)
+                packet: Dict = rename(row)
                 InputQueue.put(packet)
                 time.sleep(sleep_time)
             
-            #After we're done reading, we send None packets so that the core workers can get the signal to stop
-
+            #After we're done reading, we send None packets so that the core worker processes can get the signal to stop
             SignalEndOfInput(config, InputQueue)
 
 

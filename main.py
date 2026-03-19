@@ -1,6 +1,7 @@
 from multiprocessing import Queue
 from multiprocessing import Process
 import input
+from core import imperative_shell
 import core
 import json
 from typing import Dict
@@ -17,14 +18,17 @@ def ReadConfig() -> dict:
 if __name__ == '__main__':
     config = ReadConfig()
     quesize = config['pipeline_dynamics'].get('stream_queue_max_size')
+    
+    
     raw_values = Queue(maxsize=quesize)
+    verified_queue = Queue(maxsize=quesize) #verified queue is the intermediate queue they asked for
     processed_Queue = Queue(maxsize=quesize)
     
     InputProcess = Process(target = input.run, args = (config, raw_values))
 
-
     NumberOfWorkers = config['pipeline_dynamics'].get('core_parallelism')
-    CoreWorkers = [Process(target=core.run, args = (config, raw_values, processed_Queue)) for _ in range(NumberOfWorkers)]
+    CoreWorkers = [Process(target=imperative_shell.run, args = (config, raw_values, verified_queue,processed_Queue)) for _ in range(NumberOfWorkers)]
+
 
 
     InputProcess.start()
