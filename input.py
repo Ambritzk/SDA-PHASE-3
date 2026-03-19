@@ -27,9 +27,7 @@ def MapToInternal(config: Dict, original_column_name: str,original_value: Any, c
 
 
 
-def SignalEndOfInput(config: Dict, InputQueue: Queue) -> None:
-    for _ in range(config['pipeline_dynamics'].get('core_parallelism')):
-        InputQueue.put(None)
+
 
 def run(config: Dict, InputQueue: Queue) -> None:
     try:
@@ -47,8 +45,6 @@ def run(config: Dict, InputQueue: Queue) -> None:
                 InputQueue.put(packet)
                 time.sleep(sleep_time)
             
-            #After we're done reading, we send None packets so that the core worker processes can get the signal to stop
-            SignalEndOfInput(config, InputQueue)
 
 
 
