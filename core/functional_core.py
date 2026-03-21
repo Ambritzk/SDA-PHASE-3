@@ -38,8 +38,7 @@ def run(config: dict, VerifiedQueue: Queue, ProcessedQueue: Queue) -> None:
             return
         
         window.append(packet)
-        sorted_window = sorted([(packet.get('time_period'),packet) for packet in window])
-        sorted_window = list(map(lambda x: x[1],sorted_window))
+        sorted_window = sorted(window, key=lambda p: p.get('time_period'))
         running_average = Aggregator(sorted_window)
 
         latest_packet = sorted_window[len(sorted_window) - 1]
