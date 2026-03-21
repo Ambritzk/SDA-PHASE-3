@@ -1,9 +1,9 @@
 {
   "dataset_path": "data/sample_sensor_data_large.csv",
-  "pipelineDynamics": {
-    "inputDelay": 0.001,
-    "coresUsed": 8,
-    "queueSize": 50
+  "pipeline_dynamics": {
+    "input_delay_seconds": 0.001,
+    "core_parallelism": 8,
+    "stream_queue_max_size": 50
   },
   "schema_mapping": {
     "columns": [
