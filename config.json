@@ -1,32 +1,16 @@
 {
-  "dataset_path": "data/sample_sensor_data.csv",
-  "pipeline_dynamics": {
-    "input_delay_seconds": 0.01,
-    "core_parallelism": 4,
-    "stream_queue_max_size": 50
+  "dataset_path": "data/sample_sensor_data_large.csv",
+  "pipelineDynamics": {
+    "inputDelay": 0.001,
+    "coresUsed": 8,
+    "queueSize": 50
   },
   "schema_mapping": {
     "columns": [
-      {
-        "source_name": "Sensor_ID", 
-        "internal_mapping": "entity_name", 
-        "data_type": "string"
-      },
-      {
-        "source_name": "Timestamp", 
-        "internal_mapping": "time_period", 
-        "data_type": "integer"
-      },
-      {
-        "source_name": "Raw_Value", 
-        "internal_mapping": "metric_value", 
-        "data_type": "float"
-      },
-      {
-        "source_name": "Auth_Signature", 
-        "internal_mapping": "security_hash", 
-        "data_type": "string"
-      }
+      { "source_name": "Sensor_ID", "internal_mapping": "entity_name", "data_type": "string" },
+      { "source_name": "Timestamp", "internal_mapping": "time_period", "data_type": "integer" },
+      { "source_name": "Raw_Value", "internal_mapping": "metric_value", "data_type": "float" },
+      { "source_name": "Auth_Signature", "internal_mapping": "security_hash", "data_type": "string" }
     ]
   },
   "processing": {
@@ -42,15 +26,30 @@
     }
   },
   "visualizations": {
-    "telemetry": {
-      "show_raw_stream": true,
-      "show_intermediate_stream": true,
-      "show_processed_stream": true
+    "realTimeData": {
+      "raw_stream": {
+        "show": true,
+        "display_title": "Raw Data Queue",
+        "chart_type": "capacity_bar",
+        "thresholds": {"safe": 0.5, "warning": 0.8}
+      },
+      "intermediate_stream": {
+        "show": true,
+        "display_title": "Pass-through Stream",
+        "chart_type": "capacity_bar",
+        "thresholds": {"safe": 0.5, "warning": 0.8}
+      },
+      "processed_stream": {
+        "show": true,
+        "display_title": "Processed Stream",
+        "chart_type": "capacity_bar",
+        "thresholds": {"safe": 0.5, "warning": 0.8}
+      }
     },
     "data_charts": [
       {
         "type": "real_time_line_graph_values",
-        "title": "Live Sensor Values (Authentic Only)",
+        "title": "Live Sensor Values",
         "x_axis": "time_period",
         "y_axis": "metric_value"
       },
