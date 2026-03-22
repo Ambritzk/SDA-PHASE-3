@@ -72,11 +72,8 @@ if __name__ == '__main__':
 
 
 
-#IN TERMS OF THE SCATTER GATHER TING:
+#IN TERMS OF THE SCATTER GATHER THING:
 
-
-
-#AI DIDN'T DRAW DIS SHIT DAWG, BLAME ME
 
 #                                (IMPERATIVE SHELL)(VERIFIED QUEUE)
 #                            /->CORE_FILTER1----------------------\
