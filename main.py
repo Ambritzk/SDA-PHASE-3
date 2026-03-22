@@ -1,16 +1,18 @@
-from multiprocessing import Queue
 from multiprocessing import Process
+from pyparsing import Empty
 import input, output
 from core import imperative_shell, functional_core
 import json
+from multiprocessing import Manager
+
 from typing import Dict
 
-config: dict = None
+config: dict = None;
 def ReadConfig() -> dict:
     try:
         with open('config.json','r') as file:
             temp = json.load(file)
-        return temp
+        return temp;
     except FileNotFoundError:
         print("Couldn't find config.json")
     except json.JSONDecodeError:
@@ -18,14 +20,13 @@ def ReadConfig() -> dict:
 
 if __name__ == '__main__':
     config = ReadConfig()
+
     quesize = config['pipeline_dynamics'].get('stream_queue_max_size')
-    
-    #THE MULTIPROCESSING QUEUES
-    #THESE WILL BE SHARED BY ALL PROCESSES
-    rawQueue = Queue(maxsize=quesize) #This is going to contain the packets from the source file
-    verified_queue = Queue(maxsize=quesize) #verified queue is the intermediate queue they asked for
-    processed_Queue = Queue(maxsize=quesize) # This queue will be given the running average values
-    
+
+    manager = Manager()
+    rawQueue = manager.Queue(maxsize=quesize)
+    verified_queue = manager.Queue(maxsize=quesize)
+    processed_Queue = manager.Queue(maxsize=quesize)
     #THE PROCESSES
     #WE SPECIFY WHAT FUNCTION A PROCESS WILL RUN, AND THE ARGUMENTS IT WILL TAKE
     InputProcess = Process(target = input.run, args = (config, rawQueue))
@@ -35,8 +36,7 @@ if __name__ == '__main__':
     CoreFilters = [Process(target=imperative_shell.run, args = (config, rawQueue, verified_queue,processed_Queue)) for _ in range(NumberOfWorkers)]
 
     Aggregator = Process(target=functional_core.run,args = (config,verified_queue,processed_Queue))
-    Visualizer = Process(target=output.run, args=(processed_Queue,))
-
+    Visualizer = Process(target=output.run, args=(config, rawQueue, verified_queue, processed_Queue))
     #FROM HERE ONWARDS, WE START THE PROCESSES
     InputProcess.start()
     for worker in CoreFilters:
@@ -44,9 +44,10 @@ if __name__ == '__main__':
     Aggregator.start()
     Visualizer.start()
 
+
     InputProcess.join()#The mother of all processes waits for the process to finish before proceeding to the next line
 
-    #By putting a None into these queues, we are signalling the following processes to finish execution
+    #By putting a None into these queues, we are signaling the following processes to finish execution
     #otherwise, the mother of all processes would wait indefinitely because each process has a while True loop
 
     for i in range(NumberOfWorkers):

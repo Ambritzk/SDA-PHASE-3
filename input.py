@@ -38,7 +38,7 @@ def run(config: Dict, InputQueue: Queue) -> None:
                 packet: Dict = rename(row)
                 InputQueue.put(packet)
                 time.sleep(sleep_time)
-    
+
     except FileNotFoundError:
         print('File not found!')
     except csv.Error:
