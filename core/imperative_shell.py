@@ -5,7 +5,7 @@ import heapq
 from functools import reduce
 from typing import Dict
 import hashlib
-
+import time
 
 
 #FUNCTIONS GIVEN IN ZE PROJECT FOLDER BY ZE SIR
@@ -43,15 +43,12 @@ def Authenticator(config: Dict, metric_value):
 #THIS ALSO ACTS AS THE IMPERATIVE SHELL
 #THE IMPURE TING
 
-def run(config: Dict, InputQueue: Queue, VerifiedQueue:Queue, OutputQueue: Queue) -> None:
-
-    None_counter = 0
+def run(config: Dict, InputQueue: Queue, VerifiedQueue: Queue, OutputQueue: Queue) -> None:
     while True:
         packet = InputQueue.get()
         if packet is None:
             break
 
-        if Authenticator(config,packet.get('metric_value')) == packet.get('security_hash'):
-            #The packet has been verified
+        if Authenticator(config, packet.get('metric_value')) == packet.get('security_hash'):
+            time.sleep(0.05)
             VerifiedQueue.put(packet)
-            
