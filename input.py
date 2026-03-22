@@ -56,7 +56,7 @@ class InputProcessor:
                 csv_reader = csv.DictReader(DataFile)
                 columnsFromConfig: List[Dict] = self.config["schema_mapping"].get('columns')
             
-                rename = lambda x: {self.MapToInternal(self.config,k,v,columnsFromConfig)[0]:self.MapToInternal(self.config,k,v,columnsFromConfig)[1] for k,v in x.items()}
+                rename = lambda x: {self.MapToInternal(k,v,columnsFromConfig)[0]:self.MapToInternal(k,v,columnsFromConfig)[1] for k,v in x.items()}
 
 
                 sleep_time = self.config['pipeline_dynamics'].get('input_delay_seconds')
@@ -70,7 +70,7 @@ class InputProcessor:
         except csv.Error:
             print("Something went wrong while reading data")
 
-    def MapToInternal(original_column_name: str,original_value: Any, columnsFromConfig: List[Dict]) -> Tuple[str,Any]:
+    def MapToInternal(self,original_column_name: str,original_value: Any, columnsFromConfig: List[Dict]) -> Tuple[str,Any]:
     
         #in config.json/schema_mapping there exists a list of dictionaries called columns
         #The line below filters those dictionaries to get the one that we need to map our current column

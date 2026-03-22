@@ -135,11 +135,20 @@ class DashboardUI(Observer):
             self.axAverageChart.tick_params(axis='x', rotation=45, colors='white')
             self.axAverageChart.tick_params(axis='y', colors='white')
 
-def run(config, rawQueue: Queue, verifiedQueue: Queue, processedQueue: Queue):
-    maxSize = config['pipeline_dynamics']['stream_queue_max_size']
 
-    telemetrySubject = PipelineTelemetry(rawQueue, verifiedQueue, processedQueue, maxSize)
-    dashboard = DashboardUI(telemetrySubject, config)
+class OutputProcessor:
+    def __init__(self,config, rawQueue: Queue, verifiedQueue: Queue, processedQueue: Queue):
+        self.config = config
+        self.rawQueue = rawQueue
+        self.verifiedQueue = verifiedQueue
+        self.processedQueue = processedQueue
 
-    dashboard.ani = FuncAnimation(dashboard.fig, dashboard.animate, fargs=(processedQueue,), interval=100, cache_frame_data=False)
-    plt.show()
+
+    def run(self):
+        maxSize = self.config['pipeline_dynamics']['stream_queue_max_size']
+
+        telemetrySubject = PipelineTelemetry(self.rawQueue, self.verifiedQueue, self.processedQueue, maxSize)
+        dashboard = DashboardUI(telemetrySubject, self.config)
+
+        dashboard.ani = FuncAnimation(dashboard.fig, dashboard.animate, fargs=(self.processedQueue,), interval=100, cache_frame_data=False)
+        plt.show()

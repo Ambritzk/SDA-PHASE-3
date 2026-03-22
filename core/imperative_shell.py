@@ -56,6 +56,7 @@ import time
 
 class ImperativeShell:
     def __init__(self,config,VerifiedQueue,OutputQueue,InputQueue):
+        self.config = config
         self.InputQueue = InputQueue
         self.OutputQueue = OutputQueue
         self.VerifiedQueue = VerifiedQueue
@@ -66,7 +67,7 @@ class ImperativeShell:
             if packet is None:
                 break
 
-            if self.Authenticator(self.config, packet.get('metric_value')) == packet.get('security_hash'):
+            if self.Authenticator(packet.get('metric_value')) == packet.get('security_hash'):
                 time.sleep(0.05)
                 self.VerifiedQueue.put(packet)
 
@@ -77,7 +78,7 @@ class ImperativeShell:
         return self.generate_signature(rounded_value,SECRET_KEY,ITERATIONS)
     
 
-    def generate_signature(raw_value_str: str, key: str, iterations: int) -> str:
+    def generate_signature(self,raw_value_str: str, key: str, iterations: int) -> str:
         """
         Generates a PBKDF2 HMAC SHA-256 signature for the given value.
         Treats the secret key as the password and the raw value as the salt.

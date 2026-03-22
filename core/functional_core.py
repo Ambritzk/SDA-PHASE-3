@@ -74,7 +74,7 @@ class FunctionalCore:
 
             self.ProcessedQueue.put((running_average,latest_packet))
 
-    def Aggregator(self):
+    def Aggregator(self, window):
         #This makes a list of the metric_values of the data, and finds the average of that
         metric_list = list(map(lambda x: x.get('metric_value'),self.window))
 
